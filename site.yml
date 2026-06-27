@@ -1,0 +1,114 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+    - name: update repository index (Debian)
+      tags: always
+      apt:
+        update_cache: yes
+      changed_when: false
+      when: ansible_facts['distribution'] == "Debian"
+      
+    - name: update repository index (Ubuntu)
+      tags: always
+      apt:
+        update_cache: yes
+      changed_when: false
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+- hosts: all
+  become: true
+  vars_files:
+    - vars/ssh_canute.yml
+  tasks:
+
+  - name: add ssh key for canute
+    tags: always
+    authorized_key:
+      user: canute
+      key: "{{ ssh_key }}"
+
+- hosts: web_servers
+  become: true
+  tasks:
+      
+    - name: install apache and php packages (Debian)
+      tags: apache,debian,
+      apt:
+        name:
+          - apache2
+          - php
+        state: latest
+      when: ansible_facts['distribution'] == "Debian"
+
+    - name: start and enable apache2 (Debian)
+      tags: apache,debian,
+      service:
+        name: apache2
+        state: started
+        enabled: yes
+      when: ansible_facts['distribution'] == "Debian"
+
+    - name: install apache2 and php packages (Ubuntu)
+      tags: apache,apache2,ubuntu
+      apt:
+        name:
+          - apache2
+          - libapache2-mod-php
+        state: latest
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: change the log level (Debian)
+      tags: apache,debian,
+      lineinfile:
+        path: /etc/apache2/apache2.conf
+        regexp: "^LogLevel"
+        line: LogLevel error
+      when: ansible_facts['distribution'] == "Debian"
+      register: apache2
+
+    - name: restart apache2 (Debian)
+      tags: apache,debian,
+      service:
+        name: apache2
+        state: restarted
+      when: apache2.changed
+
+    - name: copy html file for the site
+      tags: apache,apache2,
+      copy:
+        src: default_site.html
+        dest: /var/www/html/index.html
+        owner: root
+        group: root
+        mode: 0644 # allows you to read and write to a file or directory and other users can only read it.
+
+- hosts: db_servers
+  become: true
+  tasks:
+
+    - name: install mariadb package (Debian)
+      tags: debian,db,mariadb
+      apt:
+        name: mariadb
+        state: latest
+      when: ansible_facts['distribution'] == "Debian"
+
+    - name: install mariadb server package (Ubuntu)
+      tags: db,mariadb,ubuntu
+      apt:
+        name: mariadb-server
+        state: latest
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+- hosts: file_servers
+  become: true
+  tasks:
+
+    - name: install samba package
+      tags: samba
+      package:
+        name: samba
+        state: latest

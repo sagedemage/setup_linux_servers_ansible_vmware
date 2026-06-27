@@ -1,0 +1,45 @@
+---
+
+- hosts: all
+  become: true
+  pre_tasks:
+
+    - name: install updates (Debian)
+      tags: always
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_facts['distribution'] == "Debian"
+
+    - name: install updates (Ubuntu)
+      tags: always
+      apt:
+        upgrade: dist
+        update_cache: yes
+      when: ansible_facts['distribution'] == "Ubuntu"
+
+- hosts: all
+  become: true
+  vars_files:
+    - vars/ssh_canute.yml
+  tasks:
+
+    - name: create canute user
+      user:
+        name: canute
+        shell: /bin/bash
+        groups: root
+
+    - name: add ssh key for canute
+      authorized_key:
+        user: canute
+        key: "{{ ssh_key }}"
+
+    - name: add sudoers file for canute
+      copy:
+        src: sudoer_canute
+        dest: /etc/sudoers.d/canute
+        owner: root
+        group: root
+        mode: 0440
+
