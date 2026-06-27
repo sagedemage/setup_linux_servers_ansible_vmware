@@ -219,3 +219,4 @@ sudo apt install sudo
 ## Resources
 - [Ansible community documentation - Ansible](https://docs.ansible.com/)
 - [VirtualBox can't operate in VMX mode - superuser](https://superuser.com/questions/1845776/virtualbox-cant-operate-in-vmx-mode)
+- [Timeout (XXs) waiting for privilege escalation prompt -- Ubuntu 26.04](https://github.com/ansible/ansible/issues/86849)
