@@ -40,10 +40,19 @@ Debian Server 1:
 - Hard Disk Size: 35 GB
 - OS: Debian
 
+Rocky Server 1:
+- Name: Web Server
+- Network Adapter: NAT
+    - IP Address: 192.168.182.138/24
+- Memory: 2048 MB
+- Processors: 1
+- Hard Disk Size: 30 GB
+- OS: Rocky Linux
+
 ## Virtual Machine Setup
 
-You will create four virtual machines with VMware. The first VM is for Ubuntu Desktop. This VM will be used as the Ansible controller to run playbooks on the other VMs.
-The second and third VMs are for Ubuntu Server. The last VM is for Debian.
+You will create five virtual machines with VMware. The first VM is for Ubuntu Desktop. This VM will be used as the Ansible controller to run playbooks on the other VMs.
+The rest of the VMs are for Ubuntu Server, Debian, and Rocky Linux.
 
 ## Installation 
 
@@ -52,12 +61,12 @@ Install the ansible package on Ubuntu Desktop
 sudo apt install ansible
 ```
 
-Install openssh server on Ubuntu servers
+Install openssh server on Ubuntu and Debian servers
 ```
 sudo apt install openssh-server
 ```
 
-Install openssh server on Debian servers
+Install openssh server on the Rocky Linux server
 ```
 sudo dnf install openssh-server
 ```
@@ -200,6 +209,8 @@ Running a playbook while targeting specific tags
 ansible-playbook --tags db --ask-become-pass site.yml
 ansible-playbook --tags debian --ask-become-pass site.yml
 ansible-playbook --tags apache --ask-become-pass site.yml
+ansible-playbook --tags ubuntu --ask-become-pass site.yml
+ansible-playbook --tags rocky --ask-become-pass site.yml
 ```
 
 Running a playbook while specifying multiple tags
