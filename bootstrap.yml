@@ -7,16 +7,22 @@
     - name: install updates (Debian)
       tags: always
       apt:
-        upgrade: dist
-        update_cache: yes
+        name: "*"
+        state: latest
       when: ansible_facts['distribution'] == "Debian"
 
     - name: install updates (Ubuntu)
       tags: always
       apt:
-        upgrade: dist
-        update_cache: yes
+        name: "*"
+        state: latest
       when: ansible_facts['distribution'] == "Ubuntu"
+    - name: install updates (Rocky Linux)
+      tags: always
+      dnf:
+        name: "*"
+        state: latest
+      when: ansible_facts['distribution'] == "Rocky"
 
 - hosts: all
   become: true

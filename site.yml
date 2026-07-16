@@ -5,18 +5,25 @@
   pre_tasks:
 
     - name: update repository index (Debian)
-      tags: always
+      tags: debian
       apt:
         update_cache: yes
       changed_when: false
       when: ansible_facts['distribution'] == "Debian"
       
     - name: update repository index (Ubuntu)
-      tags: always
+      tags: ubuntu
       apt:
         update_cache: yes
       changed_when: false
       when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: update repository index (Rocky Linux)
+      tags: rocky
+      dnf:
+        update_cache: yes
+      changed_when: false
+      when: ansible_facts['distribution'] == "Rocky"
 
 - hosts: all
   become: true
@@ -59,6 +66,32 @@
           - libapache2-mod-php
         state: latest
       when: ansible_facts['distribution'] == "Ubuntu"
+
+    - name: install httpd and php packages (Rocky Linux)
+      tags: apache,rocky,
+      dnf:
+        name:
+          - httpd
+          - php
+        state: latest
+      when: ansible_facts['distribution'] == "Rocky"
+
+    - name: start and enable httpd (Rocky Linux)
+      tags: apache,rocky,
+      service:
+        name: httpd
+        state: started
+        enabled: yes
+      when: ansible_facts['distribution'] == "Rocky"
+
+    - name: Allow HTTP (port 80) in the firewall
+      tags: apache,rocky,
+      firewalld:
+        service: http
+        permanent: yes
+        immediate: yes
+        state: enabled
+      when: ansible_facts['distribution'] == "Rocky"
 
     - name: change the log level (Debian)
       tags: apache,debian,
