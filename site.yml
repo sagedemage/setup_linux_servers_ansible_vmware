@@ -85,6 +85,7 @@
       when: ansible_facts['distribution'] == "Rocky"
 
     - name: Allow HTTP (port 80) in the firewall
+      tags: apache,rocky,
       firewalld:
         service: http
         permanent: yes
